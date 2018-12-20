@@ -19,9 +19,9 @@ package org.rlebouc;
 import com.atlassian.clover.CloverDatabase;
 import com.atlassian.clover.CoverageDataSpec;
 import com.atlassian.clover.api.CloverException;
-import com.atlassian.clover.api.registry.FileInfo;
-import com.atlassian.clover.api.registry.PackageInfo;
-import com.atlassian.clover.api.registry.ProjectInfo;
+import com.atlassian.clover.api.registry.*;
+import com.atlassian.clover.registry.entities.FullProjectInfo;
+import com.atlassian.clover.registry.metrics.HasMetricsFilter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -52,10 +52,13 @@ public class MyMojo extends AbstractMojo
             return;
         }
 
-        ProjectInfo projectInfo = db.getRegistry().getProject();
-        for (PackageInfo aPackage : projectInfo.getAllPackages()) {
-            for (FileInfo file : aPackage.getFiles()) {
-                getLog().info("FOOBAAAAR : " + file.getPackagePath());
+        FullProjectInfo fullModel = db.getFullModel();
+
+        for (PackageInfo aPackage : fullModel.getAllPackages()) {
+            for (ClassInfo aClass : aPackage.getAllClasses()) {
+                for (MethodInfo method : aClass.getMethods()) {
+                    getLog().info("Method : "+method.getQualifiedName());
+                }
             }
         }
     }
