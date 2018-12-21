@@ -28,9 +28,9 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Goal which touches a timestamp file.
@@ -56,6 +56,7 @@ public class MyMojo extends AbstractMojo
 
         FullProjectInfo fullModel = db.getFullModel();
 
+        List<String> pairs = new ArrayList<>();
 
         for (PackageInfo aPackage : fullModel.getAllPackages()) {
             for (ClassInfo aClass : aPackage.getAllClasses()) {
@@ -64,9 +65,23 @@ public class MyMojo extends AbstractMojo
                     //TODO : There might be a better way than casting
                     for (TestCaseInfo tci : db.getTestHits((FullMethodInfo) method)) {
                         getLog().info("Test hitting : "+tci.getQualifiedName());
+                        pairs.add(method.getQualifiedName() + " " + tci.getQualifiedName());
                     }
                 }
             }
+        }
+
+
+        try {
+            PrintWriter writer = new PrintWriter("customclover-result.txt", "UTF-8");
+            for (String pair : pairs) {
+                writer.println(pair);
+            }
+            writer.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
     }
 }
