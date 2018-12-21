@@ -20,7 +20,9 @@ import com.atlassian.clover.CloverDatabase;
 import com.atlassian.clover.CoverageDataSpec;
 import com.atlassian.clover.api.CloverException;
 import com.atlassian.clover.api.registry.*;
+import com.atlassian.clover.registry.entities.FullMethodInfo;
 import com.atlassian.clover.registry.entities.FullProjectInfo;
+import com.atlassian.clover.registry.entities.TestCaseInfo;
 import com.atlassian.clover.registry.metrics.HasMetricsFilter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -54,10 +56,15 @@ public class MyMojo extends AbstractMojo
 
         FullProjectInfo fullModel = db.getFullModel();
 
+
         for (PackageInfo aPackage : fullModel.getAllPackages()) {
             for (ClassInfo aClass : aPackage.getAllClasses()) {
                 for (MethodInfo method : aClass.getMethods()) {
                     getLog().info("Method : "+method.getQualifiedName());
+                    //TODO : There might be a better way than casting
+                    for (TestCaseInfo tci : db.getTestHits((FullMethodInfo) method)) {
+                        getLog().info("Test hitting : "+tci.getQualifiedName());
+                    }
                 }
             }
         }
